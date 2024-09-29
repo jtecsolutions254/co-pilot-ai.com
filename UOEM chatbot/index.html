@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UOEM students Copilot</title>
+    <style>
+        /* (Existing styles) */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f6f8fa;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border: #0918f1 2px;
+        }
+
+        .login-container h2 {
+            margin-bottom: 20px;
+            color: #3d0bf0;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: larger;
+        }
+
+        .login-container input[type="text"],
+        .login-container input[type="password"] {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .login-container button {
+            width: 75%;
+            padding: 15px;
+            margin: 10px 0;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .login-container button:hover {
+            background-color: #24f511;
+        }
+
+        .forgot-password {
+            color: #007bff;
+            font-size: 15px;
+            text-decoration: none;
+            display: block;
+            margin: 5px 0;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        .separator {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .separator::before,
+        .separator::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .separator::before {
+            margin-right: 10px;
+        }
+
+        .separator::after {
+            margin-left: 10px;
+        }
+
+        .social-login a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            margin: 5px 0;
+            color: rgb(17, 228, 27);
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bolder;
+        }
+
+        .social-login .google {
+            background-color: rgb(139, 48, 48);    
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .social-login .google:hover {
+            background-color: #24f511;
+        }
+
+        /* The Modal (background) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Modal Content */
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+        }
+
+        .modal-content input[type="email"],
+        .modal-content input[type="password"] {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .modal-content button {
+            width: 75%;
+            padding: 15px;
+            margin: 10px 0;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .modal-content button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Close Button */
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+        }
+
+        /* Chatbox Styles */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            width: 400px;
+            height: 600px;
+            border: 1px solid #ddd;
+            margin: 2px;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-header {
+            padding: 16px;
+            border-bottom: 1px solid #e1e4e8;
+            background-color: #c5c5c9;
+            text-align: center;
+            font-size: larger;
+            font-weight: bold;
+            font-family: 'Times New Roman', Times, serif;
+            color: #0366d6;
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px;
+            border-radius: 12px;
+            line-height: 1.4;
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+
+        .chat-input-container {
+            border-top: 1px solid #e1e4e8;
+            padding: 10px;
+            background-color: #fafbfc;
+            display: flex;
+            position: fixed;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            padding: 8px;
+            display: flex;
+            font-size: 14px;
+            margin-right: 8px;
+        }
+
+        button {
+            background-color: #2da44e;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background-color: #218739;
+        }
+
+        .error-message {
+            color: red;           
+            font-weight: bold;         
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div class="login-container" id="login-container">
+        <h2>WELCOME TO UNIVERSITY OF EMBU<br>Enter credentials to Login</h2>
+        <input type="text" id="username" placeholder="Enter your Reg.No" required>
+        <input type="password" id="password" placeholder="Enter your password" required>
+        <a href="#" class="forgot-password" id="forgotPasswordLink">Forgot password?</a>
+        <button onclick="login()">Login</button>
+        <p id="login-error" class="error-message"></p>
+
+        <!-- Reset Password Modal -->
+        <div id="resetPasswordModal" class="modal">
+            <div class="modal-content">
+                <span id="resetPasswordClose" class="close">&times;</span>
+                <h2>Forgot Password? Enter your Email and a link will be sent to Reset Password</h2>
+                <form id="resetPasswordForm" onsubmit="sendResetPassword(event)">
+                    <input type="email" placeholder="Enter your email" required>
+                    <button type="submit">Send Reset Link</button>
+                </form>
+                <p id="reset-error" class="error-message"></p> <!-- Added for error messages -->
+            </div>
+        </div>
+
+        <div class="separator">Or</div>
+        <div class="social-login">
+            <a href="#" class="google">
+                <img src="https://img.icons8.com/ios-filled/50/ffffff/google-logo.png" alt="Google">
+                Login with Google
+            </a>
+        </div>
+
+        <p>Don't have an account?</p>
+        <button class="trigger-button" onclick="showSignupModal()">Click to Create Account</button>
+    </div>
+    <!-- Signup Modal -->
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <span id="signupClose" class="close">&times;</span>
+            <h2>Signup To UOEM Chatbot</h2>
+            <form id="signupForm" onsubmit="signup(event)">
+                <input type="email" id="signup-email" placeholder="Email" required>
+                <input type="password" id="signup-password" placeholder="Create password" required>
+                <input type="password" id="confirm-password" placeholder="Confirm password" required>
+                <button type="submit">Signup</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Chatbox -->
+    <div class="chat-container" id="chat-container" style="display: none;">
+        <div class="chat-header">
+            <h3>Welcome to UOEM Assistant Chatbot</h3>
+        </div>
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-input-container" style="position: fixed;">
+            <input type="text" id="chat-input" placeholder="Ask anything concerning the school here..." />
+            <button id="send-button" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        // Function for handling login
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+    
+            fetch('http://localhost:3000/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email: username, password }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.token) {
+                    document.getElementById('login-container').style.display = 'none';
+                    document.getElementById('chat-container').style.display = 'block';
+                } else {
+                    document.getElementById('login-error').textContent = data.message;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('login-error').textContent = 'An error occurred. Please try again.';
+            });
+        }
+
+        // Function for handling signup
+        function signup(event) {
+            event.preventDefault();
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+    
+            if (password !== confirmPassword) {
+                alert("Passwords do not match!");
+                return;
+            }
+    
+            fetch('http://localhost:3000/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Signup successful! Please login.");
+                    document.getElementById('signupModal').style.display = 'none';
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Function to send reset link
+        function sendResetPassword(event) {
+            event.preventDefault();
+            const email = event.target.querySelector('input[type="email"]').value;
+
+            fetch('http://localhost:3000/reset_password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                } else {
+                    document.getElementById('reset-error').textContent = data.message; // Show error message
+                }
+                document.getElementById('resetPasswordModal').style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('reset-error').textContent = 'An error occurred. Please try again.';
+            });
+        }
+
+
+// Predefined login credentials
+const validUsername = "B135/25536/2023";
+const validPassword = "3549";
+
+// Predefined answers and close-ended questions
+const predefinedAnswers = {
+    "hello": "Hi there! welcome to university of Embu. How can I help you today? Can I assist you with something specific?",
+    "who are you": "I'm just a (computer programme), but I'm here to assist you! Is there something you'd like to know?",
+    "what is your name": "I am your helpful assistant bot. Would you like to ask anything else?",
+    "good morning": "Good morning! Did you remmember to attend your classes? Otherwise How can I help you today?",
+    "yes": "Okay go on and I will assist you where I can.",
+};
+
+        const synonymMap = {
+    "hello": ["hi", "hey", "greetings"],
+    "how are you": ["how's it going", "how do you do", "how are things"],
+    "what is your name": ["who are you", "what are you called", "your name"],
+    "bye": ["goodbye", "see you", "farewell"]
+};
+        // Function to send a message
+function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const messageText = input.value.trim().toLowerCase();
+    if (messageText === "") return;
+
+    const messagesContainer = document.getElementById('chat-messages');
+    
+    // Create user message
+    const userMessage = document.createElement('div');
+    userMessage.className = 'message user-message';
+    userMessage.innerText = messageText;
+    messagesContainer.appendChild(userMessage);
+    
+    input.value = '';  // Clear input
+    
+    // Scroll to the bottom of the chat
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    // Show typing indicator
+    const typingIndicator = document.createElement('div');
+    typingIndicator.className = 'message typing-indicator';
+    typingIndicator.innerText = 'I am thinking...';
+    messagesContainer.appendChild(typingIndicator);
+
+    // Simulate bot response after delay
+    setTimeout(() => {
+        messagesContainer.removeChild(typingIndicator);
+        const botMessageContainer = document.createElement('div');
+        botMessageContainer.className = 'message bot-message';
+
+        // Add bot's message
+        const botMessageText = document.createElement('div');
+        botMessageText.className = 'bot-message-text';
+        botMessageText.innerText = generateBotResponse(messageText);
+        botMessageContainer.appendChild(botMessageText);
+
+        // Add copy button
+        const copyButton = document.createElement('button');
+        copyButton.className = 'copy-button';
+        copyButton.innerText = 'Copy';
+        copyButton.addEventListener('click', () => copyText(botMessageText.innerText, copyButton));
+        botMessageContainer.appendChild(copyButton);
+
+        messagesContainer.appendChild(botMessageContainer);
+
+        // Scroll to the bottom of the chat
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    }, 1000);
+}
+
+// Function to calculate Levenshtein distance
+function levenshtein(a, b) {
+    const matrix = [];
+
+    for (let i = 0; i <= b.length; i++) {
+        matrix[i] = [i];
+    }
+    for (let j = 0; j <= a.length; j++) {
+        matrix[0][j] = j;
+    }
+
+    for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+            if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            } else {
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j - 1] + 1, // substitution
+                    matrix[i][j - 1] + 1,     // insertion
+                    matrix[i - 1][j] + 1      // deletion
+                );
+            }
+        }
+    }
+    return matrix[b.length][a.length];
+}
+
+// Function to compare user input with predefined questions and ignore minor spelling mistakes
+function findBestMatch(input, predefinedQuestions) {
+    let bestMatch = null;
+    let lowestDistance = Infinity;
+    
+    predefinedQuestions.forEach(question => {
+        const distance = levenshtein(input.toLowerCase(), question.toLowerCase());
+        if (distance < lowestDistance) {
+            lowestDistance = distance;
+            bestMatch = question;
+        }
+    });
+
+    return lowestDistance <= 3 ? bestMatch : null; // Allow a distance of 3 for minor errors
+}
+
+// Function to generate bot response based on user input
+function generateBotResponse(userMessage) {
+    // Fuzzy match with Levenshtein distance for minor spelling mistakes
+    const bestMatch = findBestMatch(userMessage, Object.keys(predefinedAnswers));
+
+    if (bestMatch) {
+        return predefinedAnswers[bestMatch];
+    }
+
+    // Fuzzy matching: check if the message contains a synonym
+    for (const key in synonymMap) {
+        for (const synonym of synonymMap[key]) {
+            if (userMessage.includes(synonym)) {
+                return predefinedAnswers[key];
+            }
+        }
+    }
+
+    // Default response if no match is found
+    return "I'm not able to respond to this right now but once I am able I will update you. Can you ask something else?";
+}
+
+// Function to copy bot's response and update the button text
+function copyText(text, button) {
+    navigator.clipboard.writeText(text).then(() => {
+        // Change the button text to 'Copied!'
+        button.innerText = 'Response Copied!';
+        button.disabled = true; // Disable the button to prevent multiple clicks
+
+        // Reset the button text after 3 seconds
+        setTimeout(() => {
+            button.innerText = 'Copy';
+            button.disabled = false; // Re-enable the button
+        }, 1000); // 1-second delay before resetting
+    });
+}
+
+// Event listener for Enter key for login
+document.getElementById('username').addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        login();
+    }
+});
+
+document.getElementById('password').addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        login();
+    }
+});
+
+// Event listener for Enter key for sending message
+document.getElementById('chat-input').addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        sendMessage();
+    }
+    let chatHistory = [];
+});
+        // Modal functionality
+        function showSignupModal() {
+            document.getElementById('signupModal').style.display = 'flex';
+        }
+
+        function setupModal(modalId, triggerBtnId, closeBtnId) {
+            const modal = document.getElementById(modalId);
+            const triggerBtn = document.getElementById(triggerBtnId);
+            const closeBtn = document.getElementById(closeBtnId);
+    
+            triggerBtn.onclick = function() {
+                modal.style.display = "flex";
+            };
+    
+            closeBtn.onclick = function() {
+                modal.style.display = "none";
+            };
+    
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            };
+        }
+    
+        setupModal("resetPasswordModal", "forgotPasswordLink", "resetPasswordClose");
+        setupModal("signupModal", "signupClose", "signupClose");
+    </script>
+ <script src="scripts.js"></script> <!-- Your JavaScript file -->
+
+</body>
+</html>
